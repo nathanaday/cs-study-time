@@ -22,3 +22,7 @@ temp/
 .env
 config.secret.json
 
+# Persistence
+*.db
+*.db-wal
+*.db-shm
