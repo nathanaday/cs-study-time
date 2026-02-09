@@ -1,0 +1,24 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Compiled code and build artifacts
+*.class
+*.dll
+*.exe
+*.o
+*.pyc
+/build/
+/dist/
+
+# Dependencies and temporary files
+node_modules/
+/vendor/
+*.log
+*.tmp
+temp/
+
+# Sensitive files/credentials (handle with caution)
+.env
+config.secret.json
+
