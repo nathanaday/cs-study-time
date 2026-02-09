@@ -17,6 +17,7 @@ function getDb() {
       id              INTEGER PRIMARY KEY AUTOINCREMENT,
       name            TEXT NOT NULL,
       icon            TEXT NOT NULL DEFAULT 'assets/users/user_ico_1.png',
+      color_theme     TEXT NOT NULL DEFAULT 'sage',
       created_at      TEXT NOT NULL DEFAULT (datetime('now')),
       longest_streak  INTEGER NOT NULL DEFAULT 0,
       current_streak  INTEGER NOT NULL DEFAULT 0,
@@ -60,6 +61,13 @@ function getDb() {
     CREATE INDEX IF NOT EXISTS idx_topic_progress_user ON topic_progress(user_id);
     CREATE INDEX IF NOT EXISTS idx_question_progress_user ON question_progress(user_id);
   `);
+
+  // Migration: add color_theme column for existing databases
+  try {
+    db.exec(`ALTER TABLE users ADD COLUMN color_theme TEXT NOT NULL DEFAULT 'sage'`);
+  } catch (_e) {
+    // Column already exists
+  }
 
   return db;
 }

@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const { seed } = require('./seed');
 const errorHandler = require('./middleware/errorHandler');
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/assets', express.static(path.join(__dirname, '..', '..', 'assets')));
 
 // Health check
 app.get('/api/health', (_req, res) => {

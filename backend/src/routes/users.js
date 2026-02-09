@@ -27,6 +27,7 @@ function formatUser(user) {
     id: user.id,
     name: user.name,
     icon: user.icon,
+    color_theme: user.color_theme || 'sage',
     created_at: user.created_at,
     longest_streak: user.longest_streak,
     current_streak: getDisplayStreak(user),
@@ -100,6 +101,15 @@ router.patch('/users/:id', (req, res, next) => {
       return next(err);
     }
     updates.icon = req.body.icon;
+  }
+  if (req.body.color_theme !== undefined) {
+    const validThemes = ['sage', 'terracotta', 'ocean'];
+    if (!validThemes.includes(req.body.color_theme)) {
+      const err = new Error('Invalid color theme');
+      err.status = 400;
+      return next(err);
+    }
+    updates.color_theme = req.body.color_theme;
   }
 
   if (Object.keys(updates).length === 0) {
