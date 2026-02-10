@@ -1,10 +1,15 @@
 {
-  "nextId": 2,
+  "nextId": 3,
   "items": [
     {
       "id": 1,
       "name": "Unit 1 Question Bank",
       "type": "notes"
+    },
+    {
+      "id": 2,
+      "name": "CS570 Homework 1",
+      "type": "homework"
     }
   ]
 }
