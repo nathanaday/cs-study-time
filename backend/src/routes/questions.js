@@ -23,15 +23,16 @@ router.get('/users/:userId/topics/:topicId/questions', (req, res, next) => {
   const questions = db.prepare(`
     SELECT
       q.id,
-      q.topic_id,
+      qt.topic_id,
       q.question,
       COALESCE(qp.total_attempts, 0) AS total_attempts,
       COALESCE(qp.correct_count, 0) AS correct_count,
       COALESCE(qp.incorrect_count, 0) AS incorrect_count,
       qp.last_attempted
     FROM questions q
+    INNER JOIN question_topics qt ON qt.question_id = q.id
     LEFT JOIN question_progress qp ON qp.question_id = q.id AND qp.user_id = ?
-    WHERE q.topic_id = ?
+    WHERE qt.topic_id = ?
     ORDER BY q.id
   `).all(req.params.userId, req.params.topicId);
 
@@ -86,19 +87,27 @@ router.post('/users/:userId/questions/:questionId/attempts', (req, res, next) =>
       correctDelta, incorrectDelta, now
     );
 
-    // Upsert topic_progress
-    db.prepare(`
+    // Upsert topic_progress for all topics this question belongs to
+    const questionTopics = db.prepare(
+      'SELECT topic_id FROM question_topics WHERE question_id = ?'
+    ).all(question.id);
+
+    const upsertTopicProgress = db.prepare(`
       INSERT INTO topic_progress (user_id, topic_id, total_attempts, correct_count, incorrect_count)
       VALUES (?, ?, 1, ?, ?)
       ON CONFLICT(user_id, topic_id) DO UPDATE SET
         total_attempts = total_attempts + 1,
         correct_count = correct_count + ?,
         incorrect_count = incorrect_count + ?
-    `).run(
-      user.id, question.topic_id,
-      correctDelta, incorrectDelta,
-      correctDelta, incorrectDelta
-    );
+    `);
+
+    for (const qt of questionTopics) {
+      upsertTopicProgress.run(
+        user.id, qt.topic_id,
+        correctDelta, incorrectDelta,
+        correctDelta, incorrectDelta
+      );
+    }
 
     // Update streak
     let newStreak = user.current_streak;
@@ -128,11 +137,14 @@ router.post('/users/:userId/questions/:questionId/attempts', (req, res, next) =>
       WHERE user_id = ? AND question_id = ?
     `).get(user.id, question.id);
 
-    const topicProgress = db.prepare(`
-      SELECT total_attempts, correct_count, incorrect_count
-      FROM topic_progress
-      WHERE user_id = ? AND topic_id = ?
-    `).get(user.id, question.topic_id);
+    const firstTopicId = questionTopics.length > 0 ? questionTopics[0].topic_id : null;
+    const topicProgress = firstTopicId
+      ? db.prepare(`
+          SELECT total_attempts, correct_count, incorrect_count
+          FROM topic_progress
+          WHERE user_id = ? AND topic_id = ?
+        `).get(user.id, firstTopicId)
+      : null;
 
     return { questionProgress, topicProgress };
   });

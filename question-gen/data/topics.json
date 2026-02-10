@@ -1,0 +1,77 @@
+{
+  "nextId": 19,
+  "items": [
+    {
+      "id": 1,
+      "name": "Amortized Analysis"
+    },
+    {
+      "id": 2,
+      "name": "Graph Connectivity and Graph Traversal"
+    },
+    {
+      "id": 3,
+      "name": "Breadth First Search (BFS)"
+    },
+    {
+      "id": 4,
+      "name": "Depth First Search (DFS)"
+    },
+    {
+      "id": 5,
+      "name": "Bipartite Graphs"
+    },
+    {
+      "id": 6,
+      "name": "Directed Graphs"
+    },
+    {
+      "id": 7,
+      "name": "Directed Acyclic Graphs (DAGs)"
+    },
+    {
+      "id": 8,
+      "name": "Topological Ordering"
+    },
+    {
+      "id": 9,
+      "name": "Minimum Cost Arborescence"
+    },
+    {
+      "id": 10,
+      "name": "Interval Scheduling"
+    },
+    {
+      "id": 11,
+      "name": "Scheduling All Intervals (Interval Partitioning)"
+    },
+    {
+      "id": 12,
+      "name": "Scheduling to Minimize Lateness"
+    },
+    {
+      "id": 13,
+      "name": "Greedy Algorithms"
+    },
+    {
+      "id": 14,
+      "name": "Exchange Argument"
+    },
+    {
+      "id": 15,
+      "name": "Spanning Trees"
+    },
+    {
+      "id": 16,
+      "name": "Minimum Spanning Tree (MST)"
+    },
+    {
+      "id": 17,
+      "name": "Stable Matching"
+    },
+    {
+      "id": 18,
+      "name": "Gale-Shapley Algorithm"
+    }
+  ]
+}

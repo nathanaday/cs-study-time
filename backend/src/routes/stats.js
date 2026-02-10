@@ -38,12 +38,12 @@ router.get('/users/:userId/stats', (req, res, next) => {
     SELECT
       t.id,
       t.name,
-      COUNT(q.id) AS question_count,
+      COUNT(DISTINCT qt.question_id) AS question_count,
       COALESCE(tp.total_attempts, 0) AS total_attempts,
       COALESCE(tp.correct_count, 0) AS correct_count,
       COALESCE(tp.incorrect_count, 0) AS incorrect_count
     FROM topics t
-    LEFT JOIN questions q ON q.topic_id = t.id
+    LEFT JOIN question_topics qt ON qt.topic_id = t.id
     LEFT JOIN topic_progress tp ON tp.topic_id = t.id AND tp.user_id = ?
     GROUP BY t.id
     ORDER BY t.sort_order

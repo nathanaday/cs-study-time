@@ -1,14 +1,38 @@
 const fs = require('fs');
 const path = require('path');
+const matter = require('gray-matter');
 const { getDb } = require('./database');
 
-const QUESTION_BANK_DIR = path.join(__dirname, '..', '..', 'question-bank');
+const DATA_DIR = path.join(__dirname, '..', '..', 'question-gen', 'data');
+
+function parseSections(body) {
+  const sections = {};
+  const parts = body.split(/^# /m);
+  for (const part of parts) {
+    if (!part.trim()) continue;
+    const newline = part.indexOf('\n');
+    const heading = part.slice(0, newline).trim();
+    const content = part.slice(newline + 1).trim();
+    sections[heading.toLowerCase()] = content;
+  }
+  return sections;
+}
 
 function seed() {
+  if (!fs.existsSync(DATA_DIR)) {
+    console.log('No question-gen data directory found, skipping seed');
+    return;
+  }
+
   const db = getDb();
 
-  const indexPath = path.join(QUESTION_BANK_DIR, 'index.json');
-  const index = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+  const topicsPath = path.join(DATA_DIR, 'topics.json');
+  if (!fs.existsSync(topicsPath)) {
+    console.log('No topics.json found, skipping seed');
+    return;
+  }
+
+  const topicsData = JSON.parse(fs.readFileSync(topicsPath, 'utf-8'));
 
   const upsertTopic = db.prepare(`
     INSERT INTO topics (id, name, sort_order)
@@ -19,31 +43,46 @@ function seed() {
   `);
 
   const upsertQuestion = db.prepare(`
-    INSERT INTO questions (id, topic_id, question, answer, explanation)
-    VALUES (?, ?, ?, ?, ?)
+    INSERT INTO questions (id, question, answer, explanation)
+    VALUES (?, ?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET
-      topic_id = excluded.topic_id,
       question = excluded.question,
       answer = excluded.answer,
       explanation = excluded.explanation
   `);
 
+  const upsertQuestionTopic = db.prepare(`
+    INSERT INTO question_topics (question_id, topic_id)
+    VALUES (?, ?)
+    ON CONFLICT(question_id, topic_id) DO NOTHING
+  `);
+
+  const tfDir = path.join(DATA_DIR, 'true-false');
+  const tfFiles = fs.existsSync(tfDir)
+    ? fs.readdirSync(tfDir).filter(f => f.endsWith('.md'))
+    : [];
+
   const runSeed = db.transaction(() => {
-    for (const [courseId, course] of Object.entries(index.courses)) {
-      if (!course['use-true-false']) continue;
+    for (let i = 0; i < topicsData.items.length; i++) {
+      const topic = topicsData.items[i];
+      upsertTopic.run(String(topic.id), topic.name, i);
+    }
 
-      const tfPath = path.join(QUESTION_BANK_DIR, courseId, 'tf', 'tf_questions.json');
-      if (!fs.existsSync(tfPath)) continue;
+    for (const file of tfFiles) {
+      const raw = fs.readFileSync(path.join(tfDir, file), 'utf-8');
+      const { data: frontmatter, content } = matter(raw);
+      const sections = parseSections(content);
 
-      const data = JSON.parse(fs.readFileSync(tfPath, 'utf-8'));
+      const questionId = 'tf-' + String(frontmatter.id);
+      const questionText = sections.question || '';
+      const answer = (sections.answer || '').toLowerCase();
+      const explanation = sections.explanation || '';
 
-      for (let i = 0; i < data.topics.length; i++) {
-        const topic = data.topics[i];
-        upsertTopic.run(topic.id, topic.name, i);
-      }
+      upsertQuestion.run(questionId, questionText, answer, explanation);
 
-      for (const q of data.questions) {
-        upsertQuestion.run(q.id, q.topic, q.Question, q.Answer, q.Explanation || '');
+      const topics = frontmatter.topics || [];
+      for (const topicId of topics) {
+        upsertQuestionTopic.run(questionId, String(topicId));
       }
     }
   });

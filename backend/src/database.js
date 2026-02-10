@@ -32,10 +32,15 @@ function getDb() {
 
     CREATE TABLE IF NOT EXISTS questions (
       id          TEXT PRIMARY KEY,
-      topic_id    TEXT NOT NULL REFERENCES topics(id),
       question    TEXT NOT NULL,
       answer      TEXT NOT NULL CHECK(answer IN ('true','false')),
       explanation TEXT NOT NULL DEFAULT ''
+    );
+
+    CREATE TABLE IF NOT EXISTS question_topics (
+      question_id TEXT NOT NULL REFERENCES questions(id),
+      topic_id    TEXT NOT NULL REFERENCES topics(id),
+      PRIMARY KEY (question_id, topic_id)
     );
 
     CREATE TABLE IF NOT EXISTS topic_progress (
@@ -57,7 +62,7 @@ function getDb() {
       PRIMARY KEY (user_id, question_id)
     );
 
-    CREATE INDEX IF NOT EXISTS idx_questions_topic ON questions(topic_id);
+    CREATE INDEX IF NOT EXISTS idx_question_topics_topic ON question_topics(topic_id);
     CREATE INDEX IF NOT EXISTS idx_topic_progress_user ON topic_progress(user_id);
     CREATE INDEX IF NOT EXISTS idx_question_progress_user ON question_progress(user_id);
   `);
