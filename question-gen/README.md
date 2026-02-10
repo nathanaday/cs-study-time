@@ -12,6 +12,43 @@ node src/index.js
 
 The server runs on port 3002 by default (override with the `PORT` environment variable).
 
+## Using the MCP Server for Claude
+
+question-gen/mcp-server.js -- Stdio-based MCP server that proxies to the REST API at localhost:3002. Exposes 9 tools:
+┌───────────────────────────┬──────────────────────────────────┐
+│           Tool            │             Maps to              │
+├───────────────────────────┼──────────────────────────────────┤
+│ list_topics               │ GET /api/topics                  │
+├───────────────────────────┼──────────────────────────────────┤
+│ register_topic            │ POST /api/topics                 │
+├───────────────────────────┼──────────────────────────────────┤
+│ list_sources              │ GET /api/sources                 │
+├───────────────────────────┼──────────────────────────────────┤
+│ register_source           │ POST /api/sources                │
+├───────────────────────────┼──────────────────────────────────┤
+│ list_questions            │ GET /api/questions               │
+├───────────────────────────┼──────────────────────────────────┤
+│ get_question              │ GET /api/questions/:id           │
+├───────────────────────────┼──────────────────────────────────┤
+│ add_true_false_question   │ POST /api/questions/true-false   │
+├───────────────────────────┼──────────────────────────────────┤
+│ add_select_all_question   │ POST /api/questions/select-all   │
+├───────────────────────────┼──────────────────────────────────┤
+│ add_short_answer_question │ POST /api/questions/short-answer │
+└───────────────────────────┴──────────────────────────────────┘
+Each tool has typed Zod schemas with descriptions so the LLM knows the exact format (topic ID arrays, "True"/"False" enums, choice structure,
+etc.). API errors are returned as isError: true so the agent can retry.
+
+.mcp.json -- Registers the server so Claude Code auto-discovers it when working in this project.
+
+To use it:
+1. Start the question-gen server: cd question-gen && npm start
+2. Start a new Claude Code session in this project -- it will pick up .mcp.json and connect to the MCP server
+3. The agent can then call tools like add_true_false_question directly
+
+You can override the API URL with QUESTION_GEN_URL env var if needed.
+
+
 ## Data Storage
 
 All question data lives in `question-gen/data/`, which is created automatically on first startup:

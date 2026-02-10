@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "question-gen": {
+      "command": "node",
+      "args": ["question-gen/mcp-server.js"]
+    }
+  }
+}

@@ -8,8 +8,10 @@
     "start": "node src/index.js"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
     "cors": "^2.8.5",
     "express": "^4.21.0",
-    "gray-matter": "^4.0.3"
+    "gray-matter": "^4.0.3",
+    "zod": "^3.24.2"
   }
 }
