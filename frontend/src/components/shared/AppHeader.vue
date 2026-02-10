@@ -14,7 +14,7 @@ function goHome() {
   <header class="app-header" @click="goHome">
     <div class="app-header__inner">
       <div class="app-header__brand">
-        <span class="app-header__logo">TF</span>
+        <span class="app-header__logo">CS</span>
         <span class="app-header__title">Study Time</span>
       </div>
       <div v-if="user" class="app-header__user">

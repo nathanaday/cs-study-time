@@ -35,7 +35,7 @@ async function handleSubmit() {
 <template>
   <div class="welcome bounce-in">
     <div class="welcome__card">
-      <h1 class="welcome__title">Welcome to TF Study Time</h1>
+      <h1 class="welcome__title">Welcome to CS Study Time</h1>
       <p class="welcome__subtitle">Let's set up your profile to get started.</p>
 
       <form class="welcome__form" @submit.prevent="handleSubmit">
