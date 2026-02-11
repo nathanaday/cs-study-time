@@ -1,5 +1,5 @@
 {
-  "nextId": 21,
+  "nextId": 24,
   "items": [
     {
       "id": 1,
@@ -80,6 +80,18 @@
     {
       "id": 20,
       "name": "Binary Heaps"
+    },
+    {
+      "id": 21,
+      "name": "Shortest Paths and Dijkstra's Algorithm"
+    },
+    {
+      "id": 22,
+      "name": "Binomial Heaps"
+    },
+    {
+      "id": 23,
+      "name": "Divide and Conquer"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "nextId": 5,
+  "nextId": 14,
   "items": [
     {
       "id": 1,
@@ -20,6 +20,51 @@
       "id": 4,
       "name": "CS570 Homework 3",
       "type": "homework"
+    },
+    {
+      "id": 5,
+      "name": "CS570 Discussion 2",
+      "type": "notes"
+    },
+    {
+      "id": 6,
+      "name": "CS570 Discussion 3",
+      "type": "notes"
+    },
+    {
+      "id": 7,
+      "name": "CS570 Discussion 4",
+      "type": "notes"
+    },
+    {
+      "id": 8,
+      "name": "Spring-2025",
+      "type": "exam"
+    },
+    {
+      "id": 9,
+      "name": "Fall-2025",
+      "type": "exam"
+    },
+    {
+      "id": 10,
+      "name": "Fall-2016",
+      "type": "exam"
+    },
+    {
+      "id": 11,
+      "name": "Fall-2015",
+      "type": "exam"
+    },
+    {
+      "id": 12,
+      "name": "Fall-2018",
+      "type": "exam"
+    },
+    {
+      "id": 13,
+      "name": "Spring-2018",
+      "type": "exam"
     }
   ]
 }
