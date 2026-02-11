@@ -4,7 +4,7 @@
 
 ## About
 
-Proof of concept for an MCP server that streamlines question bank generation from a variety of sources (markdown, PDF). The question generation API handles parsing the question into a structured category (true false, short answer, select all), and regsitering the source and topic for easy client querying. 
+Proof of concept MCP server that streamlines question bank generation from a variety of sources (markdown, PDF). The question generation API handles parsing the question into a structured category (true false, short answer, select all), and regsitering the source and topic for easy client querying. 
 
 This particular study bank has been generated from discussions, lecture slides, homeworks, and past exams. Claude Code was given access to the question generation MCP server, and used the provided schemas and endpoints to generate all questions with structured categories and labels. 
 
@@ -14,15 +14,11 @@ The provided front end and backend shows how to use this question bank with SQLi
 
 ### Gallery
 
-<img width="1157" height="1023" alt="Screenshot 2026-02-09 at 12 11 22 AM" src="https://github.com/user-attachments/assets/fd85cb5f-bbb2-48ea-aa4e-4824d5beb48d" />
+<img width="648" height="520" alt="Screenshot 2026-02-10 at 9 39 31 PM" src="https://github.com/user-attachments/assets/f337e388-a98a-4297-9f07-cdf7708c6d89" />
 
----
+<img width="648" height="520" alt="Screenshot 2026-02-10 at 9 39 10 PM" src="https://github.com/user-attachments/assets/a9026ff7-d54a-4504-9efe-c5d1e52bfe12" />
 
-<img width="1157" height="1023" alt="Screenshot 2026-02-09 at 12 11 12 AM" src="https://github.com/user-attachments/assets/7e5f974a-f86e-4212-82a0-29e33743cbdd" />
-
----
-
-<img width="1157" height="1023" alt="Screenshot 2026-02-09 at 12 11 15 AM" src="https://github.com/user-attachments/assets/7e78d94c-2eb3-42d5-aae5-5c12ddbba024" />
+<img width="648" height="520" alt="Screenshot 2026-02-10 at 9 39 22 PM" src="https://github.com/user-attachments/assets/fbe8ebc4-7f71-4fb3-b648-4967a9c6a200" />
 
 ---
 
@@ -70,6 +66,7 @@ user@MacBook-Pro-2 frontend % npm run dev
 ```
 
 **Access the web UI at localhost:5173** (or wherever Vite points it)
+
 
 
 
