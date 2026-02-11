@@ -4,7 +4,13 @@
 
 ## About
 
-Designed for USC's CS570. In the future I may add a more flexible option for importing study banks for any course, but in that case, applications like that already exist. The goal for this application is to quickly drill major topics in graphs, greedy, and algorithms.
+Proof of concept for an MCP server that streamlines question bank generation from a variety of sources (markdown, PDF). The question generation API handles parsing the question into a structured category (true false, short answer, select all), and regsitering the source and topic for easy client querying. 
+
+This particular study bank has been generated from discussions, lecture slides, homeworks, and past exams. Claude Code was given access to the question generation MCP server, and used the provided schemas and endpoints to generate all questions with structured categories and labels. 
+
+**See `/question-gen/README.md` for details.**
+
+The provided front end and backend shows how to use this question bank with SQLite to track user progress as they study.
 
 ### Gallery
 
@@ -64,5 +70,6 @@ user@MacBook-Pro-2 frontend % npm run dev
 ```
 
 **Access the web UI at localhost:5173** (or wherever Vite points it)
+
 
 
