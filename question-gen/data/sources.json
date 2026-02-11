@@ -1,5 +1,5 @@
 {
-  "nextId": 3,
+  "nextId": 5,
   "items": [
     {
       "id": 1,
@@ -9,6 +9,16 @@
     {
       "id": 2,
       "name": "CS570 Homework 1",
+      "type": "homework"
+    },
+    {
+      "id": 3,
+      "name": "CS570 Homework 2",
+      "type": "homework"
+    },
+    {
+      "id": 4,
+      "name": "CS570 Homework 3",
       "type": "homework"
     }
   ]
