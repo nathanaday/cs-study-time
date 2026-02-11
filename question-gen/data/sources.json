@@ -1,5 +1,5 @@
 {
-  "nextId": 15,
+  "nextId": 20,
   "items": [
     {
       "id": 1,
@@ -69,6 +69,31 @@
     {
       "id": 14,
       "name": "Cormen Ch6 - Heapsort",
+      "type": "textbook"
+    },
+    {
+      "id": 15,
+      "name": "Kleinberg Ch1 - Stable Matching",
+      "type": "textbook"
+    },
+    {
+      "id": 16,
+      "name": "Kleinberg Ch2 - Algorithm Analysis",
+      "type": "textbook"
+    },
+    {
+      "id": 17,
+      "name": "Kleinberg Ch3 - Graphs",
+      "type": "textbook"
+    },
+    {
+      "id": 18,
+      "name": "Kleinberg Ch4 - Greedy Algorithms",
+      "type": "textbook"
+    },
+    {
+      "id": 19,
+      "name": "Kleinberg Ch5 - Divide and Conquer",
       "type": "textbook"
     }
   ]

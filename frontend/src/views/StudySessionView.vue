@@ -11,6 +11,7 @@ import SelectAllCard from '../components/session/SelectAllCard.vue'
 import ShortAnswerCard from '../components/session/ShortAnswerCard.vue'
 import ComfortSelector from '../components/session/ComfortSelector.vue'
 import CompletionCard from '../components/session/CompletionCard.vue'
+import CatMascot from '../components/session/CatMascot.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -35,6 +36,16 @@ const {
 
 const selfScoreSubmitted = computed(() => {
   return pendingAnswer.value?.type === 'shortanswer' && pendingAnswer.value?.self_score != null
+})
+
+const catState = computed(() => {
+  if (sessionState.value === 'active') return 'waiting'
+  if (sessionState.value === 'answered') {
+    if (lastResult.value?.correct === true) return 'correct'
+    if (lastResult.value?.correct === false) return 'incorrect'
+    return 'waiting'
+  }
+  return null
 })
 
 onMounted(async () => {
@@ -119,6 +130,12 @@ onBeforeUnmount(() => {
             @toggle="handleStar"
           />
         </div>
+
+        <CatMascot
+          v-if="catState"
+          :key="'cat-' + currentQuestion?.id + '-' + catState"
+          :state="catState"
+        />
 
         <TrueFalseCard
           v-if="currentQuestion.type === 'tf'"

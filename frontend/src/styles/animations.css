@@ -47,6 +47,29 @@
   to { opacity: 1; }
 }
 
+@keyframes cat-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes cat-happy {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  10% { transform: rotate(-10deg) translateY(-6px); }
+  20% { transform: rotate(10deg) translateY(-6px); }
+  30% { transform: rotate(-8deg) translateY(-4px); }
+  40% { transform: rotate(8deg) translateY(-4px); }
+  50% { transform: rotate(-6deg) translateY(-3px); }
+  60% { transform: rotate(6deg) translateY(-3px); }
+  70% { transform: rotate(-3deg) translateY(-1px); }
+  80% { transform: rotate(3deg) translateY(-1px); }
+  90% { transform: rotate(-1deg); }
+}
+
+@keyframes cat-blown-away {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(250px, -150px) rotate(540deg); opacity: 0; }
+}
+
 .bounce-in {
   animation: bounce-in 0.5s var(--transition-bounce);
 }
