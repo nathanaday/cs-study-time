@@ -1,5 +1,5 @@
 {
-  "nextId": 24,
+  "nextId": 26,
   "items": [
     {
       "id": 1,
@@ -92,6 +92,14 @@
     {
       "id": 23,
       "name": "Divide and Conquer"
+    },
+    {
+      "id": 24,
+      "name": "Heapsort"
+    },
+    {
+      "id": 25,
+      "name": "Priority Queues"
     }
   ]
 }
