@@ -30,11 +30,17 @@ function getDb() {
       sort_order INTEGER NOT NULL DEFAULT 0
     );
 
+    CREATE TABLE IF NOT EXISTS sources (
+      id   TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'other'
+    );
+
     CREATE TABLE IF NOT EXISTS questions (
-      id          TEXT PRIMARY KEY,
-      question    TEXT NOT NULL,
-      answer      TEXT NOT NULL CHECK(answer IN ('true','false')),
-      explanation TEXT NOT NULL DEFAULT ''
+      id        TEXT PRIMARY KEY,
+      type      TEXT NOT NULL DEFAULT 'tf',
+      source_id TEXT REFERENCES sources(id),
+      content   TEXT NOT NULL DEFAULT '{}'
     );
 
     CREATE TABLE IF NOT EXISTS question_topics (
@@ -59,17 +65,85 @@ function getDb() {
       correct_count   INTEGER NOT NULL DEFAULT 0,
       incorrect_count INTEGER NOT NULL DEFAULT 0,
       last_attempted  TEXT,
+      comfort_score   INTEGER,
+      self_score      INTEGER,
+      is_starred      INTEGER NOT NULL DEFAULT 0,
       PRIMARY KEY (user_id, question_id)
     );
 
     CREATE INDEX IF NOT EXISTS idx_question_topics_topic ON question_topics(topic_id);
     CREATE INDEX IF NOT EXISTS idx_topic_progress_user ON topic_progress(user_id);
     CREATE INDEX IF NOT EXISTS idx_question_progress_user ON question_progress(user_id);
+    CREATE INDEX IF NOT EXISTS idx_question_progress_starred ON question_progress(user_id, is_starred);
   `);
 
   // Migration: add color_theme column for existing databases
   try {
     db.exec(`ALTER TABLE users ADD COLUMN color_theme TEXT NOT NULL DEFAULT 'sage'`);
+  } catch (_e) {
+    // Column already exists
+  }
+
+  // Migration: add sources table and source_id column for existing databases
+  db.exec(`CREATE TABLE IF NOT EXISTS sources (
+    id   TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'other'
+  )`);
+  try {
+    db.exec(`ALTER TABLE questions ADD COLUMN source_id TEXT REFERENCES sources(id)`);
+  } catch (_e) {
+    // Column already exists
+  }
+
+  // Migration: add type and content columns to questions
+  try {
+    db.exec(`ALTER TABLE questions ADD COLUMN type TEXT NOT NULL DEFAULT 'tf'`);
+  } catch (_e) {
+    // Column already exists
+  }
+  try {
+    db.exec(`ALTER TABLE questions ADD COLUMN content TEXT NOT NULL DEFAULT '{}'`);
+  } catch (_e) {
+    // Column already exists
+  }
+
+  // Migration: migrate old question/answer/explanation columns into content JSON
+  try {
+    const hasOldColumns = db.prepare(
+      `SELECT COUNT(*) AS cnt FROM pragma_table_info('questions') WHERE name = 'question'`
+    ).get();
+    if (hasOldColumns.cnt > 0) {
+      const oldQuestions = db.prepare(
+        `SELECT id, question, answer, explanation FROM questions WHERE content = '{}' AND question IS NOT NULL`
+      ).all();
+      const updateContent = db.prepare(`UPDATE questions SET content = ? WHERE id = ?`);
+      for (const q of oldQuestions) {
+        const content = JSON.stringify({
+          question: q.question,
+          answer: q.answer,
+          explanation: q.explanation || '',
+        });
+        updateContent.run(content, q.id);
+      }
+    }
+  } catch (_e) {
+    // Old columns don't exist, nothing to migrate
+  }
+
+  // Migration: add comfort_score, self_score, is_starred to question_progress
+  try {
+    db.exec(`ALTER TABLE question_progress ADD COLUMN comfort_score INTEGER`);
+  } catch (_e) {
+    // Column already exists
+  }
+  try {
+    db.exec(`ALTER TABLE question_progress ADD COLUMN self_score INTEGER`);
+  } catch (_e) {
+    // Column already exists
+  }
+  try {
+    db.exec(`ALTER TABLE question_progress ADD COLUMN is_starred INTEGER NOT NULL DEFAULT 0`);
   } catch (_e) {
     // Column already exists
   }

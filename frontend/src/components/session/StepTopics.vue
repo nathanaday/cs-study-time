@@ -1,26 +1,32 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useApi } from '../../composables/useApi'
 import { useStudySession } from '../../composables/useStudySession'
-import BubbleButton from '../shared/BubbleButton.vue'
 
 const props = defineProps({
   userId: { type: Number, required: true },
 })
 
-const emit = defineEmits(['begin'])
-
 const api = useApi()
-const { selectedTopicIds, toggleTopic, selectAll, deselectAll } = useStudySession()
-const topics = ref([])
+const {
+  selectedTopicIds,
+  availableTopics,
+  toggleTopic,
+  selectAll,
+  deselectAll,
+} = useStudySession()
 
 onMounted(async () => {
-  topics.value = await api.get(`/users/${props.userId}/topics`)
-  selectAll(topics.value.map((t) => t.id))
+  if (availableTopics.value.length === 0) {
+    const data = await api.get(`/users/${props.userId}/topics`)
+    availableTopics.value = data
+    selectAll(data.map((t) => t.id))
+  }
 })
 
 const allSelected = computed(() => {
-  return topics.value.length > 0 && selectedTopicIds.value.size === topics.value.length
+  return availableTopics.value.length > 0 &&
+    selectedTopicIds.value.size === availableTopics.value.length
 })
 
 const noneSelected = computed(() => {
@@ -31,16 +37,16 @@ function toggleAll() {
   if (allSelected.value) {
     deselectAll()
   } else {
-    selectAll(topics.value.map((t) => t.id))
+    selectAll(availableTopics.value.map((t) => t.id))
   }
 }
 </script>
 
 <template>
-  <aside class="topic-sidebar slide-up">
-    <h3 class="topic-sidebar__title">Select Topics</h3>
+  <div class="step-topics">
+    <h3 class="step-topics__title">Select Topics</h3>
 
-    <label class="topic-sidebar__toggle">
+    <label class="step-topics__toggle">
       <input
         type="checkbox"
         :checked="allSelected"
@@ -50,51 +56,30 @@ function toggleAll() {
       <span>{{ allSelected ? 'Deselect All' : 'Select All' }}</span>
     </label>
 
-    <div class="topic-sidebar__list">
+    <div class="step-topics__list">
       <label
-        v-for="topic in topics"
+        v-for="topic in availableTopics"
         :key="topic.id"
-        class="topic-sidebar__item"
+        class="step-topics__item"
       >
         <input
           type="checkbox"
           :checked="selectedTopicIds.has(topic.id)"
           @change="toggleTopic(topic.id)"
         />
-        <span class="topic-sidebar__name">{{ topic.name }}</span>
-        <span class="topic-sidebar__count">{{ topic.question_count }} q</span>
+        <span class="step-topics__name">{{ topic.name }}</span>
+        <span class="step-topics__count">{{ topic.question_count }} q</span>
       </label>
     </div>
-
-    <BubbleButton
-      variant="primary"
-      size="lg"
-      :disabled="noneSelected"
-      @click="$emit('begin')"
-    >
-      Begin Session
-    </BubbleButton>
-  </aside>
+  </div>
 </template>
 
 <style scoped>
-.topic-sidebar {
-  background: var(--color-bg-card);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: 0 4px 16px var(--color-shadow);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 400px;
-  margin: 0 auto;
+.step-topics__title {
+  margin-bottom: 8px;
 }
 
-.topic-sidebar__title {
-  margin-bottom: 4px;
-}
-
-.topic-sidebar__toggle {
+.step-topics__toggle {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -102,34 +87,37 @@ function toggleAll() {
   font-size: 0.9rem;
   color: var(--color-text-muted);
   cursor: pointer;
+  margin-bottom: 8px;
 }
 
-.topic-sidebar__list {
+.step-topics__list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  max-height: 340px;
+  overflow-y: auto;
 }
 
-.topic-sidebar__item {
+.step-topics__item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background-color 0.15s ease;
 }
 
-.topic-sidebar__item:hover {
+.step-topics__item:hover {
   background: var(--color-primary-light);
 }
 
-.topic-sidebar__name {
+.step-topics__name {
   flex: 1;
   font-weight: 600;
 }
 
-.topic-sidebar__count {
+.step-topics__count {
   font-size: 0.8rem;
   color: var(--color-text-muted);
 }

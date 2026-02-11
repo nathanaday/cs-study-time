@@ -45,6 +45,7 @@ function select(theme) {
 <style scoped>
 .theme-picker__label {
   margin-bottom: 12px;
+  margin-top: 24px;
   color: var(--color-text);
 }
 

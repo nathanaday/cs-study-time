@@ -7,7 +7,7 @@ import StudySessionView from '../views/StudySessionView.vue'
 const routes = [
   { path: '/', name: 'welcome', component: WelcomeView },
   { path: '/dashboard', name: 'dashboard', component: DashboardView },
-  { path: '/study/tf', name: 'study-tf', component: StudySessionView },
+  { path: '/study', name: 'study', component: StudySessionView },
 ]
 
 const router = createRouter({

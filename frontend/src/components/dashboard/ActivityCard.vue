@@ -4,6 +4,7 @@ defineProps({
   description: { type: String, default: '' },
   enabled: { type: Boolean, default: true },
   to: { type: String, default: '' },
+  badge: { type: String, default: 'Coming Soon' },
 })
 </script>
 
@@ -20,7 +21,7 @@ defineProps({
   <div v-else class="activity-card activity-card--disabled">
     <h3 class="activity-card__title">{{ title }}</h3>
     <p class="activity-card__desc">{{ description }}</p>
-    <span class="activity-card__badge">Coming Soon</span>
+    <span class="activity-card__badge">{{ badge }}</span>
   </div>
 </template>
 

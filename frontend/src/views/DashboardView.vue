@@ -1,10 +1,26 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useUser } from '../composables/useUser'
+import { useApi } from '../composables/useApi'
 import UserBanner from '../components/dashboard/UserBanner.vue'
 import TopicPerformance from '../components/dashboard/TopicPerformance.vue'
 import ActivityCard from '../components/dashboard/ActivityCard.vue'
 
 const { user } = useUser()
+const api = useApi()
+const starredCount = ref(0)
+const incorrectCount = ref(0)
+
+onMounted(async () => {
+  if (user.value) {
+    const [starredResult, incorrectResult] = await Promise.all([
+      api.get(`/users/${user.value.id}/starred/count`),
+      api.get(`/users/${user.value.id}/incorrect/count`),
+    ])
+    starredCount.value = starredResult.count
+    incorrectCount.value = incorrectResult.count
+  }
+})
 </script>
 
 <template>
@@ -17,20 +33,24 @@ const { user } = useUser()
       <h3 class="dashboard__section-title">Study Activities</h3>
       <div class="dashboard__activity-grid">
         <ActivityCard
-          title="True or False"
-          description="Test your knowledge with T/F questions"
+          title="Create Study Session"
+          description="Choose topics, sources, and question types"
           :enabled="true"
-          to="/study/tf"
+          to="/study"
         />
         <ActivityCard
-          title="Short Answer"
-          description="Type in your answers"
-          :enabled="false"
+          title="Study Favorites"
+          description="Review your starred questions"
+          :enabled="starredCount > 0"
+          to="/study?favorites=true"
+          :badge="starredCount === 0 ? 'No starred questions' : ''"
         />
         <ActivityCard
-          title="Interactive Answer"
-          description="Hands-on problem solving"
-          :enabled="false"
+          title="Study Wrong Answers"
+          description="Review questions you haven't gotten right yet"
+          :enabled="incorrectCount > 0"
+          to="/study?incorrect=true"
+          :badge="incorrectCount === 0 ? 'No wrong answers' : ''"
         />
       </div>
     </section>

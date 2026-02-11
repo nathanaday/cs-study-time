@@ -7,6 +7,7 @@ const usersRouter = require('./routes/users');
 const topicsRouter = require('./routes/topics');
 const questionsRouter = require('./routes/questions');
 const statsRouter = require('./routes/stats');
+const sourcesRouter = require('./routes/sources');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,6 +26,7 @@ app.use('/api', usersRouter);
 app.use('/api', topicsRouter);
 app.use('/api', questionsRouter);
 app.use('/api', statsRouter);
+app.use('/api', sourcesRouter);
 
 // Error handler
 app.use(errorHandler);

@@ -4,6 +4,7 @@ import BubbleButton from '../shared/BubbleButton.vue'
 defineProps({
   correct: { type: Number, default: 0 },
   incorrect: { type: Number, default: 0 },
+  averageComfort: { type: Number, default: 0 },
 })
 
 defineEmits(['back'])
@@ -25,6 +26,9 @@ defineEmits(['back'])
     </div>
     <p class="completion__ratio">
       {{ correct + incorrect > 0 ? Math.round((correct / (correct + incorrect)) * 100) : 0 }}% accuracy
+    </p>
+    <p v-if="averageComfort > 0" class="completion__comfort">
+      Avg. comfort: <strong>{{ averageComfort }}</strong> / 5
     </p>
     <BubbleButton variant="primary" size="lg" @click="$emit('back')">
       Back to Dashboard
@@ -94,5 +98,10 @@ defineEmits(['back'])
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--color-text);
+}
+
+.completion__comfort {
+  font-size: 1rem;
+  color: var(--color-text-muted);
 }
 </style>
