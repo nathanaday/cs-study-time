@@ -24,7 +24,7 @@ The provided front end and backend shows how to use this question bank with SQLi
 
 ### Running locally
 
-This app is designed to run locally! All user stats and question banks are stored in `backend/study.db`.
+This app is designed to run locally!
 
 After cloning the repo:
 
@@ -66,6 +66,7 @@ user@MacBook-Pro-2 frontend % npm run dev
 ```
 
 **Access the web UI at localhost:5173** (or wherever Vite points it)
+
 
 
 
