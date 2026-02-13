@@ -124,4 +124,24 @@ router.patch('/users/:id', (req, res, next) => {
   res.json(formatUser(updated));
 });
 
+// DELETE /api/users/:id
+router.delete('/users/:id', (req, res, next) => {
+  const db = getDb();
+  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.id);
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  const deleteUser = db.transaction(() => {
+    db.prepare('DELETE FROM question_progress WHERE user_id = ?').run(user.id);
+    db.prepare('DELETE FROM topic_progress WHERE user_id = ?').run(user.id);
+    db.prepare('DELETE FROM users WHERE id = ?').run(user.id);
+  });
+
+  deleteUser();
+  res.json({ deleted: true });
+});
+
 module.exports = router;

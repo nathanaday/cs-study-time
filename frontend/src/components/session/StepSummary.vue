@@ -3,6 +3,10 @@ import { onMounted, computed } from 'vue'
 import { useStudySession } from '../../composables/useStudySession'
 import BubbleButton from '../shared/BubbleButton.vue'
 
+const props = defineProps({
+  userId: { type: Number, default: null },
+})
+
 const emit = defineEmits(['begin'])
 
 const {
@@ -28,7 +32,7 @@ const beginDisabled = computed(() => {
 })
 
 onMounted(() => {
-  fetchQuestionCount()
+  fetchQuestionCount(props.userId)
 })
 </script>
 

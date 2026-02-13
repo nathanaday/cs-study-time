@@ -29,6 +29,15 @@ async function updateUser(id, data) {
   return updated
 }
 
+function clearUser() {
+  user.value = null
+}
+
+async function deleteUser(id) {
+  await api.del(`/users/${id}`)
+  clearUser()
+}
+
 const isLoggedIn = computed(() => !!user.value)
 
 export function useUser() {
@@ -39,5 +48,7 @@ export function useUser() {
     fetchUsers,
     createUser,
     updateUser,
+    clearUser,
+    deleteUser,
   }
 }

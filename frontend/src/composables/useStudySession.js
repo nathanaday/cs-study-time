@@ -102,7 +102,7 @@ function prevStep() {
   }
 }
 
-async function fetchQuestionCount() {
+async function fetchQuestionCount(userId) {
   const topicIds = [...selectedTopicIds.value]
   if (topicIds.length === 0) {
     matchingQuestionCount.value = 0
@@ -117,6 +117,9 @@ async function fetchQuestionCount() {
   const types = [...selectedTypes.value]
   if (types.length > 0) {
     params.set('types', types.join(','))
+  }
+  if (userId) {
+    params.set('userId', userId)
   }
   const result = await api.get(`/questions/preview-count?${params.toString()}`)
   matchingQuestionCount.value = result.count

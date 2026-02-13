@@ -3,11 +3,13 @@ import { useUser } from '../composables/useUser'
 import WelcomeView from '../views/WelcomeView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import StudySessionView from '../views/StudySessionView.vue'
+import QuestionBankView from '../views/QuestionBankView.vue'
 
 const routes = [
   { path: '/', name: 'welcome', component: WelcomeView },
   { path: '/dashboard', name: 'dashboard', component: DashboardView },
   { path: '/study', name: 'study', component: StudySessionView },
+  { path: '/bank', name: 'bank', component: QuestionBankView },
 ]
 
 const router = createRouter({

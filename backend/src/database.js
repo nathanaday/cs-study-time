@@ -147,6 +147,13 @@ function getDb() {
   } catch (_e) {
     // Column already exists
   }
+  try {
+    db.exec(`ALTER TABLE question_progress ADD COLUMN is_hidden INTEGER NOT NULL DEFAULT 0`);
+  } catch (_e) {
+    // Column already exists
+  }
+
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_question_progress_hidden ON question_progress(user_id, is_hidden)`);
 
   return db;
 }

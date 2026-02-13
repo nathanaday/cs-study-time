@@ -55,7 +55,7 @@ const canAdvance = computed(() => {
       <StepTopics v-if="stepperStep === 1" :userId="userId" />
       <StepSources v-else-if="stepperStep === 2" :userId="userId" />
       <StepTypes v-else-if="stepperStep === 3" />
-      <StepSummary v-else-if="stepperStep === 4" @begin="$emit('begin')" />
+      <StepSummary v-else-if="stepperStep === 4" :userId="userId" @begin="$emit('begin')" />
     </div>
 
     <div class="stepper__nav">

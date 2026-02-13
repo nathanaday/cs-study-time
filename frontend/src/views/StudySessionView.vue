@@ -124,7 +124,8 @@ onBeforeUnmount(() => {
       />
 
       <div v-if="currentQuestion" class="study-session__question-area">
-        <div class="study-session__star-row">
+        <div class="study-session__meta-row">
+          <span class="study-session__question-id">#{{ currentQuestion.id }}</span>
           <StarToggle
             :starred="!!currentQuestion.is_starred"
             @toggle="handleStar"
@@ -205,8 +206,16 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
-.study-session__star-row {
+.study-session__meta-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.study-session__question-id {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-family: monospace;
 }
 </style>

@@ -50,6 +50,16 @@ router.get('/questions/preview-count', (req, res) => {
     }
   }
 
+  let hiddenClause = '';
+  const userIdParam = req.query.userId;
+  if (userIdParam) {
+    hiddenClause = `AND NOT EXISTS (
+      SELECT 1 FROM question_progress qp
+      WHERE qp.question_id = q.id AND qp.user_id = ? AND qp.is_hidden = 1
+    )`;
+    params.push(userIdParam);
+  }
+
   const row = db.prepare(`
     SELECT COUNT(DISTINCT q.id) AS count
     FROM questions q
@@ -57,7 +67,69 @@ router.get('/questions/preview-count', (req, res) => {
     WHERE qt.topic_id IN (${topicPlaceholders})
     ${sourceClause}
     ${typeClause}
+    ${hiddenClause}
   `).get(...params);
+
+  res.json({ count: row.count });
+});
+
+// GET /api/users/:userId/questions/bank -- all questions with progress, grouped by topic
+router.get('/users/:userId/questions/bank', (req, res, next) => {
+  const db = getDb();
+  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.userId);
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  const questions = db.prepare(`
+    SELECT
+      q.id,
+      q.type,
+      q.content,
+      qt.topic_id,
+      t.name AS topic_name,
+      t.sort_order,
+      s.name AS source_name,
+      COALESCE(qp.total_attempts, 0) AS total_attempts,
+      COALESCE(qp.correct_count, 0) AS correct_count,
+      COALESCE(qp.incorrect_count, 0) AS incorrect_count,
+      qp.last_attempted,
+      COALESCE(qp.is_starred, 0) AS is_starred,
+      COALESCE(qp.is_hidden, 0) AS is_hidden,
+      qp.comfort_score
+    FROM questions q
+    INNER JOIN question_topics qt ON qt.question_id = q.id
+    INNER JOIN topics t ON t.id = qt.topic_id
+    LEFT JOIN sources s ON s.id = q.source_id
+    LEFT JOIN question_progress qp ON qp.question_id = q.id AND qp.user_id = ?
+    ORDER BY t.sort_order, t.id, q.id
+  `).all(req.params.userId);
+
+  const parsed = questions.map(q => ({
+    ...q,
+    content: JSON.parse(q.content),
+  }));
+
+  res.json(parsed);
+});
+
+// GET /api/users/:userId/hidden/count
+router.get('/users/:userId/hidden/count', (req, res, next) => {
+  const db = getDb();
+  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.userId);
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  const row = db.prepare(`
+    SELECT COUNT(*) AS count
+    FROM question_progress
+    WHERE user_id = ? AND is_hidden = 1
+  `).get(req.params.userId);
 
   res.json({ count: row.count });
 });
@@ -120,6 +192,7 @@ router.get('/users/:userId/topics/:topicId/questions', (req, res, next) => {
     LEFT JOIN sources s ON s.id = q.source_id
     LEFT JOIN question_progress qp ON qp.question_id = q.id AND qp.user_id = ?
     WHERE qt.topic_id = ?
+    AND COALESCE(qp.is_hidden, 0) = 0
     ${sourceClause}
     ${typeClause}
     ORDER BY q.id
@@ -322,6 +395,37 @@ router.post('/users/:userId/questions/:questionId/star', (req, res, next) => {
   res.json({ starred: !!starred });
 });
 
+// POST /api/users/:userId/questions/:questionId/hide
+router.post('/users/:userId/questions/:questionId/hide', (req, res, next) => {
+  const db = getDb();
+
+  const user = db.prepare('SELECT id FROM users WHERE id = ?').get(req.params.userId);
+  if (!user) {
+    const err = new Error('User not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  const question = db.prepare('SELECT id FROM questions WHERE id = ?').get(req.params.questionId);
+  if (!question) {
+    const err = new Error('Question not found');
+    err.status = 404;
+    return next(err);
+  }
+
+  const { hidden } = req.body;
+  const hiddenInt = hidden ? 1 : 0;
+
+  db.prepare(`
+    INSERT INTO question_progress (user_id, question_id, is_hidden)
+    VALUES (?, ?, ?)
+    ON CONFLICT(user_id, question_id) DO UPDATE SET
+      is_hidden = ?
+  `).run(user.id, question.id, hiddenInt, hiddenInt);
+
+  res.json({ hidden: !!hidden });
+});
+
 // GET /api/users/:userId/starred
 router.get('/users/:userId/starred', (req, res, next) => {
   const db = getDb();
@@ -348,7 +452,7 @@ router.get('/users/:userId/starred', (req, res, next) => {
     FROM question_progress qp
     INNER JOIN questions q ON q.id = qp.question_id
     LEFT JOIN sources s ON s.id = q.source_id
-    WHERE qp.user_id = ? AND qp.is_starred = 1
+    WHERE qp.user_id = ? AND qp.is_starred = 1 AND qp.is_hidden = 0
     ORDER BY q.id
   `).all(req.params.userId);
 
@@ -374,7 +478,7 @@ router.get('/users/:userId/starred/count', (req, res, next) => {
   const row = db.prepare(`
     SELECT COUNT(*) AS count
     FROM question_progress
-    WHERE user_id = ? AND is_starred = 1
+    WHERE user_id = ? AND is_starred = 1 AND is_hidden = 0
   `).get(req.params.userId);
 
   res.json({ count: row.count });
@@ -406,7 +510,7 @@ router.get('/users/:userId/incorrect', (req, res, next) => {
     FROM question_progress qp
     INNER JOIN questions q ON q.id = qp.question_id
     LEFT JOIN sources s ON s.id = q.source_id
-    WHERE qp.user_id = ? AND qp.incorrect_count > 0 AND qp.correct_count = 0
+    WHERE qp.user_id = ? AND qp.incorrect_count > 0 AND qp.correct_count = 0 AND qp.is_hidden = 0
     ORDER BY q.id
   `).all(req.params.userId);
 
@@ -432,7 +536,7 @@ router.get('/users/:userId/incorrect/count', (req, res, next) => {
   const row = db.prepare(`
     SELECT COUNT(*) AS count
     FROM question_progress
-    WHERE user_id = ? AND incorrect_count > 0 AND correct_count = 0
+    WHERE user_id = ? AND incorrect_count > 0 AND correct_count = 0 AND is_hidden = 0
   `).get(req.params.userId);
 
   res.json({ count: row.count });
